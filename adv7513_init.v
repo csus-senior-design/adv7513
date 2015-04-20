@@ -56,6 +56,7 @@ module adv7513_init(clk, reset, clk_div, sda, scl, start, done);
         .clk        (clk),
         .reset      (reset),
         .clk_div    (clk_div),
+        .open_drain (1'b1),
         .chip_addr  (chip_addr),
         .reg_addr   (reg_addr),
         .data_in    (data_in),

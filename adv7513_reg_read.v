@@ -47,7 +47,6 @@ module adv7513_reg_read(clk, reset, clk_div, sda, scl, start, done, reg_addr, re
 
     reg [7:0] adv_reg_data;
 
-
     i2c_master #(
         .ADDR_BYTES(1),
         .DATA_BYTES(1))
@@ -55,6 +54,7 @@ module adv7513_reg_read(clk, reset, clk_div, sda, scl, start, done, reg_addr, re
         .clk        (clk),
         .reset      (reset),
         .clk_div    (clk_div),
+        .open_drain (1'b1),
         .chip_addr  (chip_addr),
         .reg_addr   (reg_addr),
         .data_in    (data_in),
@@ -84,6 +84,8 @@ module adv7513_reg_read(clk, reset, clk_div, sda, scl, start, done, reg_addr, re
     assign scl = (scl_oen == 0) ? scl_out : 1'bz;
 
     always @ (posedge clk or negedge reset) begin
+        reg_data <= data_out;
+        
         if (~reset) begin
             state       <= s_idle;
             write_en    <= 1'b0;
