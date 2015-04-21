@@ -12,13 +12,16 @@ Authors:  Greg M. Crist, Jr. (gmcrist@gmail.com)
 Description:
   Initializes the ADV7513 IC on the Terasic Cyclone V Starter GX board
 */
-module adv7513_init(clk, reset, clk_div, sda, scl, start, done);
-    input clk, reset;
-    inout sda, scl;
-    input start;
-    output done;
-
-    input [11:0] clk_div;
+module adv7513_init #(
+        parameter CLKDIV = 206
+    )(
+        input clk,
+        input reset,
+        inout sda,
+        inout scl,
+        input start,
+        output done
+    );
 
     reg [1:0] state;
     reg [5:0] cmd_counter;
@@ -55,7 +58,7 @@ module adv7513_init(clk, reset, clk_div, sda, scl, start, done);
     i2c_master (
         .clk        (clk),
         .reset      (reset),
-        .clk_div    (clk_div),
+        .clk_div    (CLKDIV),
         .open_drain (1'b1),
         .chip_addr  (chip_addr),
         .reg_addr   (reg_addr),
@@ -103,12 +106,10 @@ module adv7513_init(clk, reset, clk_div, sda, scl, start, done);
                 s_iter: begin
                     state       <= cmd_counter < cmd_count ? s_cmd : s_idle;
                     cmd_counter <= cmd_counter + 1'b1;
-                    write_en    <= 1'b0;
-                    read_en     <= 1'b0;
                 end
 
                 s_cmd: begin
-                    state <= done ? s_idle : s_wait;
+                    state <= done ? s_iter : s_wait;
 
                     read_i2c(x_chip_addr, reg_addr);
 
@@ -166,7 +167,9 @@ module adv7513_init(clk, reset, clk_div, sda, scl, start, done);
                 end
 
                 s_wait: begin
-                    state <= i2c_busy && ~i2c_done ? s_wait : s_cmd;
+                    write_en <= 1'b0;
+                    read_en  <= 1'b0;
+                    state <= i2c_busy ? s_wait : s_iter;
                 end
             endcase
         end

@@ -47,14 +47,15 @@ module adv7513_reg_read(clk, reset, clk_div, sda, scl, start, done, reg_addr, re
 
     reg [7:0] adv_reg_data;
 
+
     i2c_master #(
         .ADDR_BYTES(1),
         .DATA_BYTES(1))
     i2c_master (
         .clk        (clk),
         .reset      (reset),
-        .clk_div    (clk_div),
         .open_drain (1'b1),
+        .clk_div    (clk_div),
         .chip_addr  (chip_addr),
         .reg_addr   (reg_addr),
         .data_in    (data_in),
@@ -84,8 +85,6 @@ module adv7513_reg_read(clk, reset, clk_div, sda, scl, start, done, reg_addr, re
     assign scl = (scl_oen == 0) ? scl_out : 1'bz;
 
     always @ (posedge clk or negedge reset) begin
-        reg_data <= data_out;
-        
         if (~reset) begin
             state       <= s_idle;
             write_en    <= 1'b0;
@@ -94,9 +93,6 @@ module adv7513_reg_read(clk, reset, clk_div, sda, scl, start, done, reg_addr, re
         else begin
             case (state)
                 s_idle: begin
-                    write_en <= 1'b0;
-                    read_en  <= 1'b0;
-
                     state <= start ? s_cmd : s_idle;
                 end
 
@@ -106,7 +102,9 @@ module adv7513_reg_read(clk, reset, clk_div, sda, scl, start, done, reg_addr, re
                 end
 
                 s_wait: begin
-                    state <= (i2c_busy && ~i2c_done) ? s_wait : s_idle;
+                    write_en <= 1'b0;
+                    read_en  <= 1'b0;
+                    state <= i2c_busy ? s_wait : s_idle;
                 end
             endcase
         end
@@ -119,7 +117,6 @@ module adv7513_reg_read(clk, reset, clk_div, sda, scl, start, done, reg_addr, re
 
         begin
             chip_addr <= t_chip_addr;
-//            reg_addr  <= t_reg_addr;
             data_in   <= t_data;
             write_en  <= 1;
         end
@@ -131,7 +128,6 @@ module adv7513_reg_read(clk, reset, clk_div, sda, scl, start, done, reg_addr, re
 
         begin
             chip_addr <= t_chip_addr;
-//            reg_addr  <= t_reg_addr;
             read_en   <= 1;
         end
     endtask
