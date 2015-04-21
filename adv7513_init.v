@@ -116,23 +116,23 @@ module adv7513_init #(
                     case (cmd_counter)
                         // Wait for 10 clock cycles before initializing
                         // Power-up
-                        10: write_i2c(x_chip_addr, 8'h41, 8'h40); // Power-up TX
+                        10: write_i2c(x_chip_addr, 8'h41, 8'h00); // Power-up TX
 
                         // Required Registers
                         11: write_i2c(x_chip_addr, 8'h98, 8'h03);
-                        12: write_i2c(x_chip_addr, 8'h9A, 8'hFF);
+                        12: write_i2c(x_chip_addr, 8'h9A, 8'hE0);
                         13: write_i2c(x_chip_addr, 8'h9C, 8'h30);
                         14: write_i2c(x_chip_addr, 9'h9D, 8'h01);
                         15: write_i2c(x_chip_addr, 8'hA2, 8'hA4);
                         16: write_i2c(x_chip_addr, 8'hA3, 8'hA4);
                         17: write_i2c(x_chip_addr, 8'hE0, 8'hD0);
-//                        8: write_i2c(x_chip_addr, 8'hF9, 8'h00);
+                        18: write_i2c(x_chip_addr, 8'hF9, 8'h00);
 
                         // Clear HPD interrupts
-                        18: write_i2c(x_chip_addr, 8'h96, 8'hFF);
+//                        19: write_i2c(x_chip_addr, 8'h96, 8'hFF);
 
                         // Video input mode
-                        19: write_i2c(x_chip_addr, 8'h41, 8'h00);
+//                        20: write_i2c(x_chip_addr, 8'h41, 8'h00);
 
 // From ADV7511
 /*
