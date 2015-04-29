@@ -74,7 +74,7 @@ module adv7513_reg_read(clk, reset, clk_div, sda, scl, start, done, reg_addr, re
         .scl_oen    (scl_oen));
 
 
-    assign done = ~i2c_busy && i2c_done;
+    assign done = ~i2c_busy && state == s_idle;
 
     // SDA Input / Output
     assign sda_in = sda;
