@@ -12,13 +12,25 @@ Authors:  Greg M. Crist, Jr. (gmcrist@gmail.com)
 Description:
   Allows for reading of registers
 */
-module adv7513_reg_read(clk, reset, clk_div, sda, scl, start, done, reg_addr, reg_data);
+module adv7513_reg_read  #(
+        parameter CHIP_ADDR = 7'h72,
+        parameter I2C_CLKDIV = 206,
+        parameter I2C_TXN_DELAY = 0
+    )(
+        clk,
+        reset,
+        sda,
+        scl,
+        start,
+        done,
+        reg_addr,
+        reg_data
+    );
+
     input clk, reset;
     inout sda, scl;
     input start;
-    output done;
-
-    input [11:0] clk_div;
+    output reg done;
 
     input [7:0] reg_addr;
     output reg [7:0] reg_data;
@@ -26,11 +38,10 @@ module adv7513_reg_read(clk, reset, clk_div, sda, scl, start, done, reg_addr, re
     reg [1:0] state;
     reg [6:0] chip_addr;
 
-    localparam x_chip_addr = 7'h72;
-
     localparam s_idle = 0,
                s_cmd  = 1,
-               s_wait = 2;
+               s_wait = 2,
+               s_done = 3;
 
     reg [7:0] data_in;
     reg write_en;
@@ -45,9 +56,6 @@ module adv7513_reg_read(clk, reset, clk_div, sda, scl, start, done, reg_addr, re
     wire scl_out;
     wire scl_oen;
 
-    reg [7:0] adv_reg_data;
-
-
     i2c_master #(
         .ADDR_BYTES(1),
         .DATA_BYTES(1))
@@ -55,7 +63,7 @@ module adv7513_reg_read(clk, reset, clk_div, sda, scl, start, done, reg_addr, re
         .clk        (clk),
         .reset      (reset),
         .open_drain (1'b1),
-        .clk_div    (clk_div),
+        .clk_div    (I2C_CLKDIV),
         .chip_addr  (chip_addr),
         .reg_addr   (reg_addr),
         .data_in    (data_in),
@@ -74,7 +82,7 @@ module adv7513_reg_read(clk, reset, clk_div, sda, scl, start, done, reg_addr, re
         .scl_oen    (scl_oen));
 
 
-    assign done = ~i2c_busy && state == s_idle;
+//    assign done = ~i2c_busy && state == s_idle;
 
     // SDA Input / Output
     assign sda_in = sda;
@@ -86,9 +94,11 @@ module adv7513_reg_read(clk, reset, clk_div, sda, scl, start, done, reg_addr, re
 
     always @ (posedge clk or negedge reset) begin
         if (~reset) begin
+            done        <= 1'b0;
             state       <= s_idle;
             write_en    <= 1'b0;
             read_en     <= 1'b0;
+            reg_data    <= 8'h00;
         end
         else begin
             case (state)
@@ -97,14 +107,21 @@ module adv7513_reg_read(clk, reset, clk_div, sda, scl, start, done, reg_addr, re
                 end
 
                 s_cmd: begin
-                    read_i2c(x_chip_addr, reg_addr);
-                    state <= s_wait;
+                    read_i2c(CHIP_ADDR, reg_addr);
+                    done     <= 1'b0;
+                    state    <= s_wait;
                 end
 
                 s_wait: begin
                     write_en <= 1'b0;
                     read_en  <= 1'b0;
-                    state <= i2c_busy ? s_wait : s_idle;
+                    state    <= (read_en || i2c_busy) ? s_wait : s_done;
+                end
+
+                s_done: begin
+                    done     <= 1'b1;
+                    reg_data <= data_out;
+                    state    <= s_idle;
                 end
             endcase
         end
@@ -118,7 +135,7 @@ module adv7513_reg_read(clk, reset, clk_div, sda, scl, start, done, reg_addr, re
         begin
             chip_addr <= t_chip_addr;
             data_in   <= t_data;
-            write_en  <= 1;
+            write_en  <= 1'b1;
         end
     endtask
 
@@ -128,7 +145,7 @@ module adv7513_reg_read(clk, reset, clk_div, sda, scl, start, done, reg_addr, re
 
         begin
             chip_addr <= t_chip_addr;
-            read_en   <= 1;
+            read_en   <= 1'b1;
         end
     endtask
 endmodule

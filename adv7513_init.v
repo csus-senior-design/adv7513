@@ -13,7 +13,9 @@ Description:
   Initializes the ADV7513 IC on the Terasic Cyclone V Starter GX board
 */
 module adv7513_init #(
-        parameter CLKDIV = 206
+        parameter CHIP_ADDR = 7'h72,
+        parameter I2C_CLKDIV = 206,
+        parameter I2C_TXN_DELAY = 0
     )(
         input clk,
         input reset,
@@ -27,8 +29,7 @@ module adv7513_init #(
     reg [5:0] cmd_counter;
     reg [6:0] chip_addr;
 
-    localparam cmd_count = 31;
-    localparam x_chip_addr = 7'h72;
+    localparam cmd_count = 20;
 
     localparam s_idle = 0,
                s_iter = 1,
@@ -58,7 +59,7 @@ module adv7513_init #(
     i2c_master (
         .clk        (clk),
         .reset      (reset),
-        .clk_div    (CLKDIV),
+        .clk_div    (I2C_CLKDIV),
         .open_drain (1'b1),
         .chip_addr  (chip_addr),
         .reg_addr   (reg_addr),
@@ -111,56 +112,54 @@ module adv7513_init #(
                 s_cmd: begin
                     state <= done ? s_iter : s_wait;
 
-                    read_i2c(x_chip_addr, reg_addr);
-
                     case (cmd_counter)
                         // Wait for 10 clock cycles before initializing
                         // Power-up
-                        10: write_i2c(x_chip_addr, 8'h41, 8'h00); // Power-up TX
+                        10: write_i2c(CHIP_ADDR, 8'h41, 8'h00); // Power-up TX
 
                         // Required Registers
-                        11: write_i2c(x_chip_addr, 8'h98, 8'h03);
-                        12: write_i2c(x_chip_addr, 8'h9A, 8'hE0);
-                        13: write_i2c(x_chip_addr, 8'h9C, 8'h30);
-                        14: write_i2c(x_chip_addr, 9'h9D, 8'h01);
-                        15: write_i2c(x_chip_addr, 8'hA2, 8'hA4);
-                        16: write_i2c(x_chip_addr, 8'hA3, 8'hA4);
-                        17: write_i2c(x_chip_addr, 8'hE0, 8'hD0);
-                        18: write_i2c(x_chip_addr, 8'hF9, 8'h00);
+                        11: write_i2c(CHIP_ADDR, 8'h98, 8'h03);
+                        12: write_i2c(CHIP_ADDR, 8'h9A, 8'hE0);
+                        13: write_i2c(CHIP_ADDR, 8'h9C, 8'h30);
+                        14: write_i2c(CHIP_ADDR, 9'h9D, 8'h01);
+                        15: write_i2c(CHIP_ADDR, 8'hA2, 8'hA4);
+                        16: write_i2c(CHIP_ADDR, 8'hA3, 8'hA4);
+                        17: write_i2c(CHIP_ADDR, 8'hE0, 8'hD0);
+                        18: write_i2c(CHIP_ADDR, 8'hF9, 8'h00);
 
                         // Clear HPD interrupts
-//                        19: write_i2c(x_chip_addr, 8'h96, 8'hFF);
+//                        19: write_i2c(CHIP_ADDR, 8'h96, 8'hFF);
 
                         // Video input mode
-//                        20: write_i2c(x_chip_addr, 8'h41, 8'h00);
+//                        20: write_i2c(CHIP_ADDR, 8'h41, 8'h00);
 
 // From ADV7511
 /*
-                         0: write_i2c(x_chip_addr, 8'h01, 8'h00); // Set N Value (6144)
-                         1: write_i2c(x_chip_addr, 8'h02, 8'h18); // Set N Value(6144)
-                         2: write_i2c(x_chip_addr, 8'h03, 8'h00); // Set N Value(6144)
-                         3: write_i2c(x_chip_addr, 8'h15, 8'h00); // Input 444 (RGB or YCrCb) with Separate Syncs
-                         4: write_i2c(x_chip_addr, 8'h16, 8'h61); // 44.1kHz fs, YPrPb 444
-                         5: write_i2c(x_chip_addr, 8'h18, 8'h46); // CSC disabled
-                         6: write_i2c(x_chip_addr, 8'h40, 8'h80); // General Control Packet Enable
-                         7: write_i2c(x_chip_addr, 8'h41, 8'h10); // Power Down control
-                         8: write_i2c(x_chip_addr, 8'h48, 8'h48); // Reverse bus, Data right justified
-                         9: write_i2c(x_chip_addr, 8'h48, 8'hA8); // Set Dither_mode - 12-to-10 bit
-                        10: write_i2c(x_chip_addr, 8'h4C, 8'h06); // 12 bit Output
-                        11: write_i2c(x_chip_addr, 8'h55, 8'h00); // Set RGB444 in AVinfo Frame
-                        12: write_i2c(x_chip_addr, 8'h55, 8'h08); // Set active format Aspect
-                        13: write_i2c(x_chip_addr, 8'h96, 8'h20); // HPD Interrupt clear
-                        14: write_i2c(x_chip_addr, 8'h98, 8'h03); // ADI required Write
-                        15: write_i2c(x_chip_addr, 8'h98, 8'h02); // ADI required Write
-                        16: write_i2c(x_chip_addr, 8'h9C, 8'h30); // ADI required Write
-                        17: write_i2c(x_chip_addr, 8'h9D, 8'h61); // Set clock divide
-                        18: write_i2c(x_chip_addr, 8'hA2, 8'hA4); // ADI required Write
-                        19: write_i2c(x_chip_addr, 8'h43, 8'hA4); // ADI required Write
-                        20: write_i2c(x_chip_addr, 8'hAF, 8'h16); // Set HDMI Mode
-                        21: write_i2c(x_chip_addr, 8'hBA, 8'h60); // No clock delay
-                        22: write_i2c(x_chip_addr, 8'hDE, 8'h9C); // ADI required write
-                        23: write_i2c(x_chip_addr, 8'hE4, 8'h60); // ADI required Write
-                        24: write_i2c(x_chip_addr, 8'hFA, 8'h7D); // Nbr of times to search for good phase
+                         0: write_i2c(CHIP_ADDR, 8'h01, 8'h00); // Set N Value (6144)
+                         1: write_i2c(CHIP_ADDR, 8'h02, 8'h18); // Set N Value(6144)
+                         2: write_i2c(CHIP_ADDR, 8'h03, 8'h00); // Set N Value(6144)
+                         3: write_i2c(CHIP_ADDR, 8'h15, 8'h00); // Input 444 (RGB or YCrCb) with Separate Syncs
+                         4: write_i2c(CHIP_ADDR, 8'h16, 8'h61); // 44.1kHz fs, YPrPb 444
+                         5: write_i2c(CHIP_ADDR, 8'h18, 8'h46); // CSC disabled
+                         6: write_i2c(CHIP_ADDR, 8'h40, 8'h80); // General Control Packet Enable
+                         7: write_i2c(CHIP_ADDR, 8'h41, 8'h10); // Power Down control
+                         8: write_i2c(CHIP_ADDR, 8'h48, 8'h48); // Reverse bus, Data right justified
+                         9: write_i2c(CHIP_ADDR, 8'h48, 8'hA8); // Set Dither_mode - 12-to-10 bit
+                        10: write_i2c(CHIP_ADDR, 8'h4C, 8'h06); // 12 bit Output
+                        11: write_i2c(CHIP_ADDR, 8'h55, 8'h00); // Set RGB444 in AVinfo Frame
+                        12: write_i2c(CHIP_ADDR, 8'h55, 8'h08); // Set active format Aspect
+                        13: write_i2c(CHIP_ADDR, 8'h96, 8'h20); // HPD Interrupt clear
+                        14: write_i2c(CHIP_ADDR, 8'h98, 8'h03); // ADI required Write
+                        15: write_i2c(CHIP_ADDR, 8'h98, 8'h02); // ADI required Write
+                        16: write_i2c(CHIP_ADDR, 8'h9C, 8'h30); // ADI required Write
+                        17: write_i2c(CHIP_ADDR, 8'h9D, 8'h61); // Set clock divide
+                        18: write_i2c(CHIP_ADDR, 8'hA2, 8'hA4); // ADI required Write
+                        19: write_i2c(CHIP_ADDR, 8'h43, 8'hA4); // ADI required Write
+                        20: write_i2c(CHIP_ADDR, 8'hAF, 8'h16); // Set HDMI Mode
+                        21: write_i2c(CHIP_ADDR, 8'hBA, 8'h60); // No clock delay
+                        22: write_i2c(CHIP_ADDR, 8'hDE, 8'h9C); // ADI required write
+                        23: write_i2c(CHIP_ADDR, 8'hE4, 8'h60); // ADI required Write
+                        24: write_i2c(CHIP_ADDR, 8'hFA, 8'h7D); // Nbr of times to search for good phase
 */
                         default: state <= s_iter; //          Do nothing
                     endcase
@@ -169,7 +168,7 @@ module adv7513_init #(
                 s_wait: begin
                     write_en <= 1'b0;
                     read_en  <= 1'b0;
-                    state <= i2c_busy ? s_wait : s_iter;
+                    state    <= i2c_done ? s_iter : s_wait;
                 end
             endcase
         end
@@ -184,7 +183,7 @@ module adv7513_init #(
             chip_addr <= t_chip_addr;
             reg_addr  <= t_reg_addr;
             data_in   <= t_data;
-            write_en  <= 1;
+            write_en  <= 1'b1;
         end
     endtask
 
@@ -195,7 +194,7 @@ module adv7513_init #(
         begin
             chip_addr <= t_chip_addr;
             reg_addr  <= t_reg_addr;
-            read_en   <= 1;
+            read_en   <= 1'b1;
         end
     endtask
 endmodule
