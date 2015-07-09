@@ -126,6 +126,10 @@ module adv7513_init #(
                         16: write_i2c(CHIP_ADDR, 8'hA3, 8'hA4);
                         17: write_i2c(CHIP_ADDR, 8'hE0, 8'hD0);
                         18: write_i2c(CHIP_ADDR, 8'hF9, 8'h00);
+                        
+                        // Video input setup
+                        19: write_i2c(CHIP_ADDR, 8'h15, 8'h00);   // 24 bit RGB 4:4:4
+                        20: write_i2c(CHIP_ADDR, 8'h16, 8'h30);   // Output format 4:4:4 and 8 bit color depth
 
                         // Clear HPD interrupts
 //                        19: write_i2c(CHIP_ADDR, 8'h96, 8'hFF);
