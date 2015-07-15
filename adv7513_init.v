@@ -25,6 +25,7 @@ module adv7513_init #(
         output done
     );
 
+    (* syn_encoding = "safe" *)
     reg [1:0] state;
     reg [5:0] cmd_counter;
     reg [6:0] chip_addr;
@@ -89,7 +90,7 @@ module adv7513_init #(
     assign scl_in = scl;
     assign scl = (scl_oen == 0) ? scl_out : 1'bz;
 
-    always @ (posedge clk or negedge reset) begin
+    always @ (posedge clk) begin
         if (~reset) begin
             state       <= s_idle;
             cmd_counter <= 4'd0;
