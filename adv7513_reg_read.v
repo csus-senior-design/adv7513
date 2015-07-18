@@ -88,11 +88,11 @@ module adv7513_reg_read  #(
 //    assign done = ~i2c_busy && state == s_idle;
 
     // SDA Input / Output
-    assign sda_in = sda;
+    //assign sda_in = sda;
     assign sda = (sda_oen == 0) ? sda_out : 1'bz;
 
     // SCL Input / Output
-    assign scl_in = scl;
+    //assign scl_in = scl;
     assign scl = (scl_oen == 0) ? scl_out : 1'bz;
 
     always @ (posedge clk) begin

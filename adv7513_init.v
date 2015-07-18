@@ -83,11 +83,11 @@ module adv7513_init #(
     assign done = cmd_counter >= cmd_count && ~i2c_busy;
 
     // SDA Input / Output
-    assign sda_in = sda;
+    //assign sda_in = sda;
     assign sda = (sda_oen == 0) ? sda_out : 1'bz;
 
     // SCL Input / Output
-    assign scl_in = scl;
+    //assign scl_in = scl;
     assign scl = (scl_oen == 0) ? scl_out : 1'bz;
 
     always @ (posedge clk) begin
