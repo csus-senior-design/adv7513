@@ -23,7 +23,7 @@ module adv7513_reg_read  #(
         scl,
         start,
         done,
-        reg_addr,
+        reg_addr_in,
         reg_data
     );
 
