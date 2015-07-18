@@ -32,12 +32,14 @@ module adv7513_reg_read  #(
     input start;
     output reg done;
 
-    input [7:0] reg_addr;
+    input [7:0] reg_addr_in;
     output reg [7:0] reg_data;
 
     (* syn_encoding = "safe" *)
     reg [1:0] state;
     reg [6:0] chip_addr;
+    
+    reg [7:0] reg_addr;
 
     localparam s_idle = 0,
                s_cmd  = 1,
@@ -94,6 +96,9 @@ module adv7513_reg_read  #(
     assign scl = (scl_oen == 0) ? scl_out : 1'bz;
 
     always @ (posedge clk) begin
+        // Flop the input so it's not lost
+        reg_addr <= reg_addr_in;
+    
         if (~reset) begin
             done        <= 1'b0;
             state       <= s_idle;
