@@ -107,6 +107,9 @@ module adv7513_reg_read  #(
             reg_data    <= 8'h00;
         end
         else begin
+            read_en <= 1'b0;
+            done <= 1'b0;
+            write_en <= 1'b0;
             case (state)
                 s_idle: begin
                     state <= start ? s_cmd : s_idle;
@@ -114,13 +117,13 @@ module adv7513_reg_read  #(
 
                 s_cmd: begin
                     read_i2c(CHIP_ADDR, reg_addr);
-                    done     <= 1'b0;
+                    //done     <= 1'b0;
                     state    <= s_wait;
                 end
 
                 s_wait: begin
-                    write_en <= 1'b0;
-                    read_en  <= 1'b0;
+                    //write_en <= 1'b0;
+                    //read_en  <= 1'b0;
                     state    <= (read_en || i2c_busy) ? s_wait : s_done;
                 end
 
