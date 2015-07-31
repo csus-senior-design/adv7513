@@ -46,7 +46,7 @@ module adv7513_reg_read  #(
                s_wait = 2,
                s_done = 3;
 
-    reg [7:0] data_in;
+    reg [7:0] data_in = 8'd0;
     reg write_en;
     reg read_en = 1'b0;
     wire [2:0] i2c_status;
