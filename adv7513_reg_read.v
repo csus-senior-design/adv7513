@@ -13,7 +13,7 @@ Description:
   Allows for reading of registers
 */
 module adv7513_reg_read  #(
-        parameter CHIP_ADDR = 7'h72,
+        parameter CHIP_ADDR = 7'h39,
         parameter I2C_CLKDIV = 206,
         parameter I2C_TXN_DELAY = 0
     )(
@@ -46,7 +46,7 @@ module adv7513_reg_read  #(
                s_wait = 2,
                s_done = 3;
 
-    reg [7:0] data_in = 8'd0;
+    reg [7:0] data_in;
     reg write_en;
     reg read_en = 1'b0;
     wire [2:0] i2c_status;

@@ -13,7 +13,7 @@ Description:
   Initializes the ADV7513 IC on the Terasic Cyclone V Starter GX board
 */
 module adv7513_init #(
-        parameter CHIP_ADDR = 7'h72,
+        parameter CHIP_ADDR = 7'h39,
         parameter I2C_CLKDIV = 206,
         parameter I2C_TXN_DELAY = 0
     )(
@@ -30,7 +30,7 @@ module adv7513_init #(
     reg [5:0] cmd_counter;
     reg [6:0] chip_addr;
 
-    localparam cmd_count = 20;
+    localparam cmd_count = 22;
 
     localparam s_idle = 0,
                s_iter = 1,
@@ -116,21 +116,23 @@ module adv7513_init #(
                     case (cmd_counter)
                         // Wait for 10 clock cycles before initializing
                         // Power-up
-                        10: write_i2c(CHIP_ADDR, 8'h41, 8'h00); // Power-up TX
+                        10: write_i2c(CHIP_ADDR, 8'hD6, 8'hC0); // Ignore HPD
+                        11: write_i2c(CHIP_ADDR, 8'h41, 8'h00); // Power-up TX
 
                         // Required Registers
-                        11: write_i2c(CHIP_ADDR, 8'h98, 8'h03);
-                        12: write_i2c(CHIP_ADDR, 8'h9A, 8'hE0);
-                        13: write_i2c(CHIP_ADDR, 8'h9C, 8'h30);
-                        14: write_i2c(CHIP_ADDR, 9'h9D, 8'h01);
-                        15: write_i2c(CHIP_ADDR, 8'hA2, 8'hA4);
-                        16: write_i2c(CHIP_ADDR, 8'hA3, 8'hA4);
-                        17: write_i2c(CHIP_ADDR, 8'hE0, 8'hD0);
-                        18: write_i2c(CHIP_ADDR, 8'hF9, 8'h00);
+                        12: write_i2c(CHIP_ADDR, 8'h98, 8'h03);
+                        13: write_i2c(CHIP_ADDR, 8'h9A, 8'hE0);
+                        14: write_i2c(CHIP_ADDR, 8'h9C, 8'h30);
+                        15: write_i2c(CHIP_ADDR, 9'h9D, 8'h01);
+                        16: write_i2c(CHIP_ADDR, 8'hA2, 8'hA4);
+                        17: write_i2c(CHIP_ADDR, 8'hA3, 8'hA4);
+                        18: write_i2c(CHIP_ADDR, 8'hE0, 8'hD0);
+                        19: write_i2c(CHIP_ADDR, 8'hF9, 8'h00);
                         
-                        // Video input setup
-                        19: write_i2c(CHIP_ADDR, 8'h15, 8'h00);   // 24 bit RGB 4:4:4
-                        20: write_i2c(CHIP_ADDR, 8'h16, 8'h30);   // Output format 4:4:4 and 8 bit color depth
+                        // Video mode setup
+                        20: write_i2c(CHIP_ADDR, 8'h15, 8'h00); // 24 bit RGB 4:4:4
+                        21: write_i2c(CHIP_ADDR, 8'h17, 8'h00); // Set aspect ratio to 4:3
+                        22: write_i2c(CHIP_ADDR, 8'hAF, 8'h01); // Enable HDMI mode
 
                         // Clear HPD interrupts
 //                        19: write_i2c(CHIP_ADDR, 8'h96, 8'hFF);
