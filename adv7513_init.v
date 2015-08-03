@@ -131,7 +131,7 @@ module adv7513_init #(
                         
                         // Video mode setup
                         20: write_i2c(CHIP_ADDR, 8'h15, 8'h00); // 24 bit RGB 4:4:4
-                        21: write_i2c(CHIP_ADDR, 8'h17, 8'h00); // Set aspect ratio to 4:3
+                        21: write_i2c(CHIP_ADDR, 8'h17, 8'h02); // Set aspect ratio to 4:3
                         22: write_i2c(CHIP_ADDR, 8'hAF, 8'h01); // Enable HDMI mode
 
                         // Clear HPD interrupts
