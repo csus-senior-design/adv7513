@@ -8,6 +8,7 @@ Spring 2015 / Fall 2015
 
 Omnivision ADV7513 Initialization
 Authors:  Greg M. Crist, Jr. (gmcrist@gmail.com)
+          Padraic Hagerty    (guitarisrockin@hotmail.com)
 
 Description:
   Initializes the ADV7513 IC on the Terasic Cyclone V Starter GX board
@@ -30,7 +31,7 @@ module adv7513_init #(
     reg [5:0] cmd_counter;
     reg [6:0] chip_addr;
 
-    localparam cmd_count = 22;
+    localparam cmd_count = 23;
 
     localparam s_idle = 0,
                s_iter = 1,
@@ -130,9 +131,10 @@ module adv7513_init #(
                         19: write_i2c(CHIP_ADDR, 8'hF9, 8'h00);
                         
                         // Video mode setup
-                        20: write_i2c(CHIP_ADDR, 8'h15, 8'h00); // 24 bit RGB 4:4:4
-                        21: write_i2c(CHIP_ADDR, 8'h17, 8'h02); // Set aspect ratio to 4:3
-                        22: write_i2c(CHIP_ADDR, 8'hAF, 8'h01); // Enable HDMI mode
+                        20: write_i2c(CHIP_ADDR, 8'h15, 8'h00); // 24 bit RGB 4:4:4 input
+                        21: write_i2c(CHIP_ADDR, 8'h16, 8'h38); // 4:4:4, 8 bit per color output
+                        22: write_i2c(CHIP_ADDR, 8'h17, 8'h02); // Set aspect ratio to 16:9
+                        23: write_i2c(CHIP_ADDR, 8'hAF, 8'h02); // Enable HDMI mode
 
                         // Clear HPD interrupts
 //                        19: write_i2c(CHIP_ADDR, 8'h96, 8'hFF);

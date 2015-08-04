@@ -8,6 +8,7 @@ Spring 2015 / Fall 2015
 
 Omnivision ADV7513 Register Debug
 Authors:  Greg M. Crist, Jr. (gmcrist@gmail.com)
+          Padraic Hagerty    (guitarisrockin@hotmail.com)
 
 Description:
   Allows for reading of registers
@@ -40,11 +41,15 @@ module adv7513_reg_read  #(
     reg [6:0] chip_addr;
     
     reg [7:0] reg_addr;
+    
+    reg [25:0] cnt;
 
     localparam s_idle = 0,
                s_cmd  = 1,
                s_wait = 2,
                s_done = 3;
+               
+    localparam ONE_S = 26'd50000000;
 
     reg [7:0] data_in;
     reg write_en;
@@ -85,7 +90,7 @@ module adv7513_reg_read  #(
         .scl_oen    (scl_oen));
 
 
-//    assign done = ~i2c_busy && state == s_idle;
+//    assign done = ~i2c_busy && state == s_idle && prev_state == s_done;
 
     // SDA Input / Output
     //assign sda_in = sda;
@@ -105,19 +110,25 @@ module adv7513_reg_read  #(
             write_en    <= 1'b0;
             read_en     <= 1'b0;
             reg_data    <= 8'h00;
+            cnt         <= 26'd0;
         end
         else begin
             read_en <= 1'b0;
-            done <= 1'b0;
             write_en <= 1'b0;
             case (state)
                 s_idle: begin
                     state <= start ? s_cmd : s_idle;
+                    
+                    if (done && cnt == ONE_S) begin
+                        done <= 1'b0;
+                        cnt <= 26'd0;
+                    end else
+                        cnt <= cnt + 26'd1;
                 end
 
                 s_cmd: begin
                     read_i2c(CHIP_ADDR, reg_addr);
-                    //done     <= 1'b0;
+                    done     <= 1'b0;
                     state    <= s_wait;
                 end
 
