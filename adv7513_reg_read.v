@@ -42,14 +42,15 @@ module adv7513_reg_read  #(
     
     reg [7:0] reg_addr;
     
-    reg [25:0] cnt;
+    reg [25:0]  cnt;
+    reg         cnt_en;
 
     localparam s_idle = 0,
                s_cmd  = 1,
                s_wait = 2,
                s_done = 3;
                
-    localparam ONE_S = 26'd50000000;
+    localparam DLY_1s = 26'd50000000;
 
     reg [7:0] data_in;
     reg write_en;
@@ -111,6 +112,7 @@ module adv7513_reg_read  #(
             read_en     <= 1'b0;
             reg_data    <= 8'h00;
             cnt         <= 26'd0;
+            cnt_en      <= 1'b0;
         end
         else begin
             read_en <= 1'b0;
@@ -119,10 +121,11 @@ module adv7513_reg_read  #(
                 s_idle: begin
                     state <= start ? s_cmd : s_idle;
                     
-                    if (done && cnt == ONE_S) begin
+                    if (done && cnt == DLY_1s) begin
                         done <= 1'b0;
                         cnt <= 26'd0;
-                    end else
+                        cnt_en <= 1'b0;
+                    end else if (cnt_en)
                         cnt <= cnt + 26'd1;
                 end
 
@@ -142,6 +145,8 @@ module adv7513_reg_read  #(
                     done     <= 1'b1;
                     reg_data <= data_out;
                     state    <= s_idle;
+                    cnt <= 26'd0;
+                    cnt_en <= 1'b1;
                 end
             endcase
         end
