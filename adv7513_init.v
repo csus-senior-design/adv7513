@@ -31,7 +31,7 @@ module adv7513_init #(
     reg [5:0] cmd_counter;
     reg [6:0] chip_addr;
 
-    localparam cmd_count = 37;
+    localparam cmd_count = 40;
 
     localparam s_idle = 0,
                s_iter = 1,
@@ -173,6 +173,13 @@ module adv7513_init #(
 						35: write_i2c(CHIP_ADDR, 8'hDE, 8'hD8); // "
 						36: write_i2c(CHIP_ADDR, 8'hE4, 8'h60); // VCO swing reference voltage
 						37: write_i2c(CHIP_ADDR, 8'hFA, 8'h7D); // Nbr of times to search for good phase
+						
+						// Registers that must be set according to the ADV7513
+						// documentation, but are not set from the ADV7511
+						// script
+						38: write_i2c(CHIP_ADDR, 8'h9A, 8'hE0);
+						39: write_i2c(CHIP_ADDR, 8'hE0, 8'hD0);
+						40: write_i2c(CHIP_ADDR, 8'hF9, 8'h00);
 
                         // Clear HPD interrupts
 //                        19: write_i2c(CHIP_ADDR, 8'h96, 8'hFF);
