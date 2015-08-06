@@ -6,7 +6,7 @@ California State University, Sacramento
 Spring 2015 / Fall 2015
 ----------------------------------------
 
-Omnivision ADV7513 Register Debug
+Analog Devices ADV7513 Register Debug
 Authors:  Greg M. Crist, Jr. (gmcrist@gmail.com)
           Padraic Hagerty    (guitarisrockin@hotmail.com)
 
@@ -52,7 +52,7 @@ module adv7513_reg_read  #(
                
     localparam DLY_1s = 26'd50000000;
 
-    reg [7:0] data_in;
+    reg [7:0] data_in = 8'h0;
     reg write_en;
     reg read_en = 1'b0;
     wire [2:0] i2c_status;

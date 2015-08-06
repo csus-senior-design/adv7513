@@ -6,7 +6,7 @@ California State University, Sacramento
 Spring 2015 / Fall 2015
 ----------------------------------------
 
-Omnivision ADV7513 Initialization
+Analog Devices ADV7513 Initialization
 Authors:  Greg M. Crist, Jr. (gmcrist@gmail.com)
           Padraic Hagerty    (guitarisrockin@hotmail.com)
 
@@ -117,7 +117,7 @@ module adv7513_init #(
                     case (cmd_counter)
                         // Wait for 10 clock cycles before initializing
                         // Power-up
-                        /*10: write_i2c(CHIP_ADDR, 8'hD6, 8'hC0); // Ignore HPD
+                        /*10: write_i2c(CHIP_ADDR, 8'hD6, 8'hC0); // HPD is always high
                         11: write_i2c(CHIP_ADDR, 8'h41, 8'h00); // Power-up TX
 
                         // Required Registers
@@ -137,7 +137,7 @@ module adv7513_init #(
                         23: write_i2c(CHIP_ADDR, 8'hAF, 8'h02); // Enable HDMI mode*/
 						
 						// ADI recommended settings
-						09: write_i2c(CHIP_ADDR, 8'hD6, 8'hC0); // Ignore HPD
+						09: write_i2c(CHIP_ADDR, 8'hD6, 8'hC0); // HPD is always high
 						10: write_i2c(CHIP_ADDR, 8'h01, 8'h00); // Set N Value(6144)
 						11: write_i2c(CHIP_ADDR, 8'h02, 8'h18); // Set N Value(6144)
 						12: write_i2c(CHIP_ADDR, 8'h03, 8'h00); // Set N Value(6144)
