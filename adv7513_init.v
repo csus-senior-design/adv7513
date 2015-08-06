@@ -31,7 +31,7 @@ module adv7513_init #(
     reg [5:0] cmd_counter;
     reg [6:0] chip_addr;
 
-    localparam cmd_count = 23;
+    localparam cmd_count = 37;
 
     localparam s_idle = 0,
                s_iter = 1,
@@ -117,7 +117,7 @@ module adv7513_init #(
                     case (cmd_counter)
                         // Wait for 10 clock cycles before initializing
                         // Power-up
-                        10: write_i2c(CHIP_ADDR, 8'hD6, 8'hC0); // Ignore HPD
+                        /*10: write_i2c(CHIP_ADDR, 8'hD6, 8'hC0); // Ignore HPD
                         11: write_i2c(CHIP_ADDR, 8'h41, 8'h00); // Power-up TX
 
                         // Required Registers
@@ -134,7 +134,45 @@ module adv7513_init #(
                         20: write_i2c(CHIP_ADDR, 8'h15, 8'h00); // 24 bit RGB 4:4:4 input
                         21: write_i2c(CHIP_ADDR, 8'h16, 8'h38); // 4:4:4, 8 bit per color output
                         22: write_i2c(CHIP_ADDR, 8'h17, 8'h02); // Set aspect ratio to 16:9
-                        23: write_i2c(CHIP_ADDR, 8'hAF, 8'h02); // Enable HDMI mode
+                        23: write_i2c(CHIP_ADDR, 8'hAF, 8'h02); // Enable HDMI mode*/
+						
+						// ADI recommended settings
+						09: write_i2c(CHIP_ADDR, 8'hD6, 8'hC0); // Ignore HPD
+						10: write_i2c(CHIP_ADDR, 8'h01, 8'h00); // Set N Value(6144)
+						11: write_i2c(CHIP_ADDR, 8'h02, 8'h18); // Set N Value(6144)
+						12: write_i2c(CHIP_ADDR, 8'h03, 8'h00); // Set N Value(6144)
+						13: write_i2c(CHIP_ADDR, 8'h15, 8'h00); // 24 bit RGB 4:4:4 input
+						14: write_i2c(CHIP_ADDR, 8'h16, 8'h70); // 4:4:4, 8 bit per color output
+																// ADI says to use 8'h60 for the ADV7511,
+																// but we are using 8 bit color inputs,
+																// not 12 bit inputs
+						15: write_i2c(CHIP_ADDR, 8'h18, 8'h46);	// CSC disabled
+						16: write_i2c(CHIP_ADDR, 8'h40, 8'h80); // General Control packet enable
+						17: write_i2c(CHIP_ADDR, 8'h41, 8'h10); // Power down control
+						18: write_i2c(CHIP_ADDR, 8'h48, 8'h08); // Data right justified
+						19: write_i2c(CHIP_ADDR, 8'h49, 8'h00); // No truncation
+						20: write_i2c(CHIP_ADDR, 8'h4C, 8'h00); // 12 bit output (fixed register?)
+						21: write_i2c(CHIP_ADDR, 8'h55, 8'h00); // Set RGB 4:4:4 in AVI Info Frame
+																// ADI says to use 8'h40 for the ADV7511
+																// evaluation board, but we are not using
+																// YCrCb 4:4:4
+						22: write_i2c(CHIP_ADDR, 8'h56, 8'h08); // Set active format Aspect
+						23: write_i2c(CHIP_ADDR, 8'h96, 8'h20); // HPD interrupt clear (setting vsync interrupt?)
+						24: write_i2c(CHIP_ADDR, 8'h98, 8'h03); // ADI recommended write
+						25: write_i2c(CHIP_ADDR, 8'h99, 8'h02); // "
+																// skipping 8'h9A and 8'h9B (?)
+						26: write_i2c(CHIP_ADDR, 8'h9C, 8'h30); // PLL filter R1 value
+						27: write_i2c(CHIP_ADDR, 8'h9D, 8'h61); // Set clock divide
+						28: write_i2c(CHIP_ADDR, 8'hA2, 8'hA4); // ADI recommended write
+						29: write_i2c(CHIP_ADDR, 8'hA3, 8'hA4); // "
+						30: write_i2c(CHIP_ADDR, 8'hA5, 8'h04); // "
+						31: write_i2c(CHIP_ADDR, 8'hAB, 8'h40); // "
+						32: write_i2c(CHIP_ADDR, 8'hAF, 8'h16); // Set HDMI mode
+						33: write_i2c(CHIP_ADDR, 8'hBA, 8'h60); // No clock delay
+						34: write_i2c(CHIP_ADDR, 8'hD1, 8'hFF); // ADI recommended write
+						35: write_i2c(CHIP_ADDR, 8'hDE, 8'hD8); // "
+						36: write_i2c(CHIP_ADDR, 8'hE4, 8'h60); // VCO swing reference voltage
+						37: write_i2c(CHIP_ADDR, 8'hFA, 8'h7D); // Nbr of times to search for good phase
 
                         // Clear HPD interrupts
 //                        19: write_i2c(CHIP_ADDR, 8'h96, 8'hFF);
